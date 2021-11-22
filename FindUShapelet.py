@@ -16,6 +16,8 @@ def FindUShapelet(timeseries, labels, deltas, lenSubsequence, similarity_measure
     if numCandidates > 100:
         onePercent = np.round(numCandidates * 0.01)
         for i in range(int(onePercent)):
+            # if i % 1 == 0:
+            #     print("Compute gap for i:", i)
             curGap, curRI, curIDX = ComputeGap(ushapeletCandidates[i], lenSubsequence, timeseries, deltas, labels, similarity_measure)
             if curGap > gap:
                 gap = curGap

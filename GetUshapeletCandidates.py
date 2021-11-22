@@ -50,9 +50,8 @@ def GetUshapeletCandidates(timeseries, lenSubsequence):
         uShapeletsOrder[stds <= medianStd] = uShapeletsOrder[np.random.permutation(len(smallStds))]
         SAX_shapelets_TS = SAX_shapelets_TS[uShapeletsOrder, :]
 
-    otherInd = np.argwhere(rowsToDelete==0)
+    otherInd = np.argwhere(rowsToDelete == 0).reshape(-1)
     otherInd = otherInd[np.random.permutation(len(otherInd))]
-    otherInd = np.concatenate(otherInd)
     SAX_shapelets_TS = np.concatenate((SAX_shapelets_TS, SAX_shapelets_TS_backup[otherInd]), axis=0)
 
     return SAX_shapelets_TS

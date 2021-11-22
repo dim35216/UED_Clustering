@@ -15,6 +15,8 @@ def ComputeGap(ushapeletCandidate, lenSubsequence, timeseries, deltas, labels, s
     deltas_distances = np.zeros(numTimeseries, dtype=float)
     locations = np.zeros(numTimeseries, dtype=int)
     for i in range(numTimeseries):
+        # if i % 100 == 0:
+        #     print('findNN for i:', i)
         distances[i], deltas_distances[i], locations[i] = findNN(shapelet, deltas_shapelet, timeseries[i, :], deltas[i, :], similarity_measure)
     
     # Sorting the distances to get the orderline

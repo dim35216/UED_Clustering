@@ -3,9 +3,8 @@ from sklearn import metrics
 from FindUShapelet import *
 
 
-def Run(timeseries, deltas, labels, similarity_measure = "ED"):
+def Run(timeseries, deltas, labels, lenSubsequence = 30, similarity_measure = "ED"):
     labels_copy = labels
-    lenSubsequence = 30
     uShapelets = []
     firstGap = 0
     remainingIndices = np.array([index for index in range(len(timeseries))])
