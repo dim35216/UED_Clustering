@@ -9,17 +9,17 @@ from Run import *
 
 datasets =\
     (
-        # 'CBF',
-        # 'ItalyPowerDemand',
+        'CBF',
+        'ItalyPowerDemand',
         'ECG200',
-        # 'ECGFiveDays',
+        'ECGFiveDays',
         'Plane',
-        # 'ShapeletSim',
-        # 'SonyAIBORobotSurface1',
-        # 'SonyAIBORobotSurface2',
-        # 'Trace',
-        # 'TwoLeadECG',
-        # # 'Chinatown'
+        'ShapeletSim',
+        'SonyAIBORobotSurface1',
+        'SonyAIBORobotSurface2',
+        'Trace',
+        'TwoLeadECG',
+        # 'Chinatown'
     )
 
 lenSubsequences =\
@@ -71,9 +71,9 @@ def run_on_dataset(dataset, uncertainty_level):
         print("labels:")
         print(labels.shape)
 
-        list_lenSubsequence = lenSubsequences[dataset][similarity_measure]
+        # list_lenSubsequence = lenSubsequences[dataset][similarity_measure]
 
-        for lenSubsequence in list_lenSubsequence:
+        for lenSubsequence in range(4, len(timeseries) // 2 + 1, 2):
             print('lenSubsequence:', lenSubsequence)
             results[similarity_measure][lenSubsequence] = {}
 
@@ -100,4 +100,4 @@ def run_on_dataset(dataset, uncertainty_level):
     except Exception as e:
         print(e)
 
-Parallel(n_jobs = 3)(delayed(run_on_dataset)(dataset, uncertainty_level) for dataset in datasets for uncertainty_level in ['0_1', '0_8', '2_0'])
+Parallel(n_jobs = -1)(delayed(run_on_dataset)(dataset, uncertainty_level) for dataset in datasets for uncertainty_level in ['0_1', '0_8', '2_0'])
