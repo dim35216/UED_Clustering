@@ -9,10 +9,11 @@ def Run(timeseries, deltas, labels, lenSubsequence = 30, similarity_measure = "E
     firstGap = 0
     remainingIndices = np.array([index for index in range(len(timeseries))])
     clusters = np.zeros(len(timeseries), dtype=int)
-    counter = 1
+    counter = 0
     # totalTime = 0
 
     while len(remainingIndices) > 3:
+        counter += 1
         print()
         print("=====================================================================================")
         print("counter:", counter)
@@ -46,7 +47,7 @@ def Run(timeseries, deltas, labels, lenSubsequence = 30, similarity_measure = "E
         # sys.exit()
 
         ts_index = remainingIndices[int(ushapelet[0])]
-        loc = ushapelet[1]
+        loc = int(ushapelet[1])
         
         indicesNewCluster = np.argwhere(IDX)
 
@@ -58,7 +59,7 @@ def Run(timeseries, deltas, labels, lenSubsequence = 30, similarity_measure = "E
         labels = np.delete(labels, np.concatenate(indicesNewCluster), axis=0)
         remainingIndices = np.delete(remainingIndices, np.concatenate(indicesNewCluster), axis=0)
 
-        counter += 1
+        
 
     print()
     print()
@@ -73,4 +74,4 @@ def Run(timeseries, deltas, labels, lenSubsequence = 30, similarity_measure = "E
     resultRI = metrics.rand_score(clusters, labels_copy)
     print("RI:", resultRI)
 
-    return resultRI
+    return resultRI, counter, uShapelets
