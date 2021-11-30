@@ -8,21 +8,21 @@ def ComputeGap(ushapeletCandidate, lenSubsequence, timeseries, deltas, labels, s
     ts_index = int(ushapeletCandidate[0])
     loc = int(ushapeletCandidate[1])
     shapelet = timeseries[ts_index, loc : loc + lenSubsequence]
-    deltas_shapelet = deltas[ts_index, loc : loc + lenSubsequence]
+    delta_shapelet = deltas[ts_index, loc : loc + lenSubsequence]
     
     # Compute the distances from the shapelet to all timeseries
     distances = np.zeros(numTimeseries, dtype=float)
-    deltas_distances = np.zeros(numTimeseries, dtype=float)
+    delta_distances = np.zeros(numTimeseries, dtype=float)
     locations = np.zeros(numTimeseries, dtype=int)
     for i in range(numTimeseries):
         # if i % 100 == 0:
         #     print('findNN for i:', i)
-        distances[i], deltas_distances[i], locations[i] = findNN(shapelet, deltas_shapelet, timeseries[i, :], deltas[i, :], similarity_measure)
+        distances[i], delta_distances[i], locations[i] = findNN(shapelet, delta_shapelet, timeseries[i, :], deltas[i, :], similarity_measure)
     
     # Sorting the distances to get the orderline
     if similarity_measure == 'UED':
         # Simple ordering
-        indices = np.lexsort((deltas_distances, distances))
+        indices = np.lexsort((delta_distances, distances))
         orderline = distances[indices]
     else:
         orderline = np.sort(distances)
@@ -52,7 +52,7 @@ def ComputeGap(ushapeletCandidate, lenSubsequence, timeseries, deltas, labels, s
 
     RI = metrics.rand_score(evaluation_labels, IDX)
 
-    return maxGap, RI, IDX
+    return maxGap, RI, IDX, distances, delta_distances, locations
 
 
 def gap(orderline, d):

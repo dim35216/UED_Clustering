@@ -14,21 +14,21 @@ def Run(timeseries, deltas, labels, lenSubsequence = 30, similarity_measure = "E
 
     while len(remainingIndices) > 3:
         counter += 1
-        print()
-        print("=====================================================================================")
+        # print()
+        # print("=====================================================================================")
         print("counter:", counter)
-        print("remainingIndices:")
-        print(remainingIndices)
-        print("clusters:")
-        print(clusters)
-        print("firstGap:", firstGap)
+        # print("remainingIndices:")
+        # print(remainingIndices)
+        # print("clusters:")
+        # print(clusters)
+        # print("firstGap:", firstGap)
 
-        ushapelet, gap, RI, IDX = FindUShapelet(timeseries, labels, deltas, lenSubsequence, similarity_measure)
-        print("ushapelet:", ushapelet)
-        print("gap:", gap)
-        print("RI:", RI)
-        print("IDX:")
-        print(IDX)
+        ushapelet, gap, RI, IDX, distances, delta_distances, locations = FindUShapelet(timeseries, labels, deltas, lenSubsequence, similarity_measure)
+        # print("ushapelet:", ushapelet)
+        # print("gap:", gap)
+        # print("RI:", RI)
+        # print("IDX:")
+        # print(IDX)
 
         if firstGap == 0:
             if gap > 0:
@@ -51,7 +51,15 @@ def Run(timeseries, deltas, labels, lenSubsequence = 30, similarity_measure = "E
         
         indicesNewCluster = np.argwhere(IDX)
 
-        uShapelets.append([ts_index, loc, lenSubsequence, gap])
+        info_uShapelet = {
+            'ts_index': ts_index,
+            'loc': loc,
+            'gap': gap,
+            'distances': distances,
+            'delta_distances': delta_distances,
+            'locations': locations
+        }
+        uShapelets.append(info_uShapelet)
         
         clusters[remainingIndices[indicesNewCluster]] = counter
         
@@ -61,17 +69,17 @@ def Run(timeseries, deltas, labels, lenSubsequence = 30, similarity_measure = "E
 
         
 
-    print()
-    print()
-    print()
-    print("Result:")
-    print("remainingIndices:")
-    print(remainingIndices)
-    print("clusters:")
-    print(clusters)
-    print("firstGap:", firstGap)
+    # print()
+    # print()
+    # print()
+    # print("Result:")
+    # print("remainingIndices:")
+    # print(remainingIndices)
+    # print("clusters:")
+    # print(clusters)
+    # print("firstGap:", firstGap)
 
     resultRI = metrics.rand_score(clusters, labels_copy)
     print("RI:", resultRI)
 
-    return resultRI, counter, uShapelets
+    return resultRI, counter, uShapelets, clusters

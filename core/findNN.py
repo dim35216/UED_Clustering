@@ -4,31 +4,31 @@ from core.FOTS import *
 from core.UED import *
 
 
-def findNN(shapelet, deltas_shapelet, ts, deltas_ts, similarity_measure):
+def findNN(shapelet, delta_shapelet, ts, delta_ts, similarity_measure):
     n = len(ts)
     m = len(shapelet)
 
     distances = np.empty(n - m, dtype=float)
-    deltas_distances = np.zeros(n - m, dtype=float)
+    delta_distances = np.zeros(n - m, dtype=float)
     if similarity_measure == 'FOTS':
         for i in range(n - m):
             distances[i] = FOTS(shapelet, ts[i : i + m])
     elif similarity_measure == 'UED':
         for i in range(n - m):
-            distances[i], deltas_distances[i] = UED(shapelet, deltas_shapelet, ts[i : i + m], deltas_ts[i : i + m])
+            distances[i], delta_distances[i] = UED(shapelet, delta_shapelet, ts[i : i + m], delta_ts[i : i + m])
     else:
         for i in range(n - m):
             distances[i] = ED(shapelet, ts[i : i + m])
     
     NN_index = np.argmin(distances)
     NN_distance = distances[NN_index]
-    NN_deltas_distance = deltas_distances[NN_index]
+    NN_delta_distance = delta_distances[NN_index]
 
     # Normalize by the length of the shapelet
     NN_distance = NN_distance / m
-    NN_deltas_distance = NN_deltas_distance / m
+    NN_delta_distance = NN_delta_distance / m
 
-    return NN_distance, NN_deltas_distance, NN_index
+    return NN_distance, NN_delta_distance, NN_index
 
     """ ts = np.concatenate(([0], ts))
     n = len(ts)

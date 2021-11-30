@@ -55,3 +55,19 @@ def GetUshapeletCandidates(timeseries, lenSubsequence):
     SAX_shapelets_TS = np.concatenate((SAX_shapelets_TS, SAX_shapelets_TS_backup[otherInd]), axis=0)
 
     return SAX_shapelets_TS
+
+def GetUshapeletCandidates_Slow(timeseries, lenSubsequence):
+    numTimeseries, lenTimeseries = timeseries.shape
+    numSubsequencesPerTS = lenTimeseries - lenSubsequence + 1
+    numSubsequences = numTimeseries * numSubsequencesPerTS
+
+    ushapeletCandidates = np.zeros((numSubsequences, 2))
+    
+    curRow = 0
+    for i in range(numTimeseries):
+        for j in range(numSubsequencesPerTS):
+            ushapeletCandidates[curRow, 0] = i
+            ushapeletCandidates[curRow, 1] = j
+            curRow += 1
+    
+    return ushapeletCandidates
