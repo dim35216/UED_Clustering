@@ -9,78 +9,74 @@ from Run import *
 
 datasets =\
     (
-        # 'CBF',
-        # 'ItalyPowerDemand',
+        'CBF',
+        'ItalyPowerDemand',
         'ECG200',
-        # 'ECGFiveDays',
-        # 'Plane',
-        # 'ShapeletSim',
-        # 'SonyAIBORobotSurface1',
-        # 'SonyAIBORobotSurface2',
-        # 'Trace',
-        # 'TwoLeadECG',
-        # # 'Chinatown'
+        'ECGFiveDays',
+        'Plane',
+        'ShapeletSim',
+        'SonyAIBORobotSurface1',
+        'SonyAIBORobotSurface2',
+        'Trace',
+        'TwoLeadECG'
     )
 
 lenSubsequences_dict =\
     {
         'CBF': {
-            'FOTS': [6],
-            'UED': [6, 39],
-            'ED': [39]
+            'FOTS': [6, 9, 12],
+            'UED': [31, 35, 39, 43],
+            'ED': [35, 39, 43]
         },
         'ItalyPowerDemand': {
-            'FOTS': [8],
-            'UED': [7, 8],
-            'ED': [7]
+            'FOTS': [6, 8, 10],
+            'UED': [6, 8, 10],
+            'ED': [6, 8, 10]
         },
         'ECG200': {
-            'FOTS': [5],
-            'UED': [5, 24],
-            'ED': [24]
+            'FOTS': [5, 8, 11],
+            'UED': [20, 24, 28],
+            'ED': [20, 24, 28]
         },
         'ECGFiveDays': {
-            'FOTS': [14],
-            'UED': [14, 32],
-            'ED': [32]
+            'FOTS': [10, 14, 18],
+            'UED': [20, 28, 32, 36],
+            'ED': [28, 32, 36]
         },
         'Plane': {
-            'FOTS': [6],
-            'UED': [6, 13],
-            'ED': [13]
+            'FOTS': [4, 6, 9],
+            'UED': [6, 10, 13, 16],
+            'ED': [10, 13, 16]
         },
         'ShapeletSim': {
-            'FOTS': [10],
-            'UED': [6, 10],
-            'ED': [6]
+            'FOTS': [6, 10, 13],
+            'UED': [6, 10, 13],
+            'ED': [6, 10, 13]
         },
         'SonyAIBORobotSurface1': {
-            'FOTS': [9],
-            'UED': [9, 27],
-            'ED': [27]
+            'FOTS': [6, 9, 13],
+            'UED': [19, 23, 27, 31],
+            'ED': [23, 27, 31]
         },
         'SonyAIBORobotSurface2': {
-            'FOTS': [15],
-            'UED': [15],
-            'ED': [15]
+            'FOTS': [11, 15, 19],
+            'UED': [11, 15, 19],
+            'ED': [11, 15, 19]
         },
         'Trace': {
-            'FOTS': [10],
-            'UED': [10, 15],
-            'ED': [15]
+            'FOTS': [8, 10, 13],
+            'UED': [11, 15, 19],
+            'ED': [11, 15, 19]
         },
         'TwoLeadECG': {
-            'FOTS': [15],
-            'UED': [10, 15],
-            'ED': [10]
+            'FOTS': [11, 15, 19],
+            'UED': [11, 15, 19],
+            'ED': [11, 15, 19]
         }
     }
 
-def run_on_dataset(dataset, uncertainty_level):
-    print('run_on_dataset')
-    print('dataset:', dataset)
-    print('uncertainty_level:', uncertainty_level)
 
+def load_dataset(dataset, uncertainty_level):
     dataset_path = os.path.join('uncertain_datasets', uncertainty_level, dataset)
     data_test        = pd.DataFrame(arff.loadarff(os.path.join(dataset_path, dataset + '_TEST.arff'))[0]).astype({'target': float})
     data_noise_test  = pd.DataFrame(arff.loadarff(os.path.join(dataset_path, dataset + '_NOISE_TEST.arff'))[0])
@@ -100,41 +96,63 @@ def run_on_dataset(dataset, uncertainty_level):
     print(deltas.shape)
     print("labels:")
     print(labels.shape)
-    
+
+    return timeseries, deltas, labels
+
+
+def run_on_dataset(dataset, uncertainty_level, similarity_measure):
+    print('run_on_dataset')
+    print('dataset:', dataset)
+    print('uncertainty_level:', uncertainty_level)
+    print('similarity_measure:', similarity_measure)
+
+    timeseries, deltas, labels = load_dataset(dataset, uncertainty_level)
+
+    results_file_txt = 'results_' + dataset + '_' + uncertainty_level + '_' + similarity_measure + '.txt'
+    results_file_dat = 'results_' + dataset + '_' + uncertainty_level + '_' + similarity_measure + '.dat'
+
+    if os.path.exists(results_file_txt):
+        os.remove(results_file_txt)
+
+    lenSubsequences = lenSubsequences_dict[dataset][similarity_measure]
+    # lenSubsequences = range(4, len(timeseries) // 2 + 1, 2)
+
     results = {}
-    for similarity_measure in ['FOTS', 'UED', 'ED']:
-        print('similarity_measure:', similarity_measure)
-        results[similarity_measure] = {}
+    for lenSubsequence in lenSubsequences:
+        print('lenSubsequence:', lenSubsequence)
+        results[lenSubsequence] = {}
 
-        lenSubsequences = lenSubsequences_dict[dataset][similarity_measure]
-        # lenSubsequences = range(4, len(timeseries) // 2 + 1, 2)
+        start = time.time()
+        RI, num_clusters, uShapelets, clusters = Run(timeseries, deltas, labels, lenSubsequence = lenSubsequence, similarity_measure = similarity_measure)
+        end = time.time()
 
-        for lenSubsequence in lenSubsequences:
-            print('lenSubsequence:', lenSubsequence)
-            results[similarity_measure][lenSubsequence] = {}
+        results[lenSubsequence]['RI'] = RI
+        results[lenSubsequence]['num_clusters'] = num_clusters
+        results[lenSubsequence]['uShapelets'] = uShapelets
+        results[lenSubsequence]['clusters'] = clusters
+        results[lenSubsequence]['time'] = end - start
 
-            start = time.time()
-            RI, num_clusters, uShapelets, clusters = Run(timeseries, deltas, labels, lenSubsequence = lenSubsequence, similarity_measure = similarity_measure)
-            end = time.time()
-
-            results[similarity_measure][lenSubsequence]['RI'] = RI
-            results[similarity_measure][lenSubsequence]['num_clusters'] = num_clusters
-            results[similarity_measure][lenSubsequence]['uShapelets'] = uShapelets
-            results[similarity_measure][lenSubsequence]['clusters'] = clusters
-            results[similarity_measure][lenSubsequence]['time'] = end - start
+        try:
+            with open(results_file_txt, 'a') as f:
+                f.write(f'lenSubsequence: {lenSubsequence}')
+                f.write(str(results[lenSubsequence]))
+                f.write('\n')
+        except Exception as e:
+            print(e)
 
     print('dataset:', dataset)
     print('uncertainty_level:', uncertainty_level)
+    print('similarity_measure:', similarity_measure)
     print(results)
     try:
-        with open('results_' + dataset + '_' + uncertainty_level + '.txt', 'w') as f:
-            f.write(str(results))
-    except Exception as e:
-        print(e)
-    try:
-        with open('results_' + dataset + '_' + uncertainty_level + '.dat', 'wb') as f:
+        with open(results_file_dat, 'wb') as f:
             pickle.dump(results, f)
     except Exception as e:
         print(e)
 
-Parallel(n_jobs = -1)(delayed(run_on_dataset)(dataset, uncertainty_level) for dataset in datasets for uncertainty_level in ['0_1', '0_8', '2_0'])
+if __name__ == '__main__':
+    Parallel(n_jobs = -1)(delayed(run_on_dataset)(dataset, uncertainty_level, similarity_measure) \
+        for dataset in datasets \
+        for uncertainty_level in ['0_1', '0_8', '2_0'] \
+        for similarity_measure in ['FOTS', 'ED', 'UED'] \
+    )

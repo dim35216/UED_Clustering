@@ -24,10 +24,10 @@ def timeseries2symbol(shapelets, lenShapelet, cardinality, dimensionality):
                     temp[j, :] = shapelet
 
                 expanded_shapelet = np.reshape(np.transpose(temp), (1, lenShapelet * dimensionality))
-                PAA = np.array([np.mean(np.reshape(expanded_shapelet, (lenShapelet, dimensionality), order="F"), axis=0)])
+                PAA = np.mean(np.reshape(expanded_shapelet, (lenShapelet, dimensionality), order="F"), axis=0)
             else:
-                PAA = [np.mean(np.reshape(shapelet, (window_size, dimensionality)))]
-        
+                PAA = np.mean(np.reshape(shapelet, (window_size, dimensionality)))
+
         current_string = map_to_string(PAA, cardinality)
 
         if not len(np.nonzero(current_string == symbolic_data[lastPointer, :])[0]) == dimensionality: 
@@ -44,7 +44,7 @@ def timeseries2symbol(shapelets, lenShapelet, cardinality, dimensionality):
 
 
 def map_to_string(PAA, alphabet_size):
-    string = np.zeros((1, PAA.shape[1]))
+    string = np.zeros((1, len(PAA)))
 
     if alphabet_size == 2:
         cut_points  = [-np.inf, 0]
@@ -85,8 +85,8 @@ def map_to_string(PAA, alphabet_size):
     elif alphabet_size == 20:
         cut_points  = [-np.inf, -1.64, -1.28, -1.04, -0.84, -0.67, -0.52, -0.39, -0.25, -0.13, 0, 0.13, 0.25, 0.39, 0.52, 0.67, 0.84, 1.04, 1.28, 1.64]
 
-    for i in range(PAA.shape[1]):
-        string[0, i] = np.sum((cut_points <= (PAA[0, i]))) 
+    for i in range(len(PAA)):
+        string[0, i] = np.sum((cut_points <= (PAA[i]))) 
     
     return string
 
