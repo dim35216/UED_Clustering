@@ -28,6 +28,7 @@ def timeseries2symbol(shapelets, lenShapelet, cardinality, dimensionality):
             else:
                 PAA = np.mean(np.reshape(shapelet, (window_size, dimensionality)))
 
+        PAA = np.array([PAA]).flatten()
         current_string = map_to_string(PAA, cardinality)
 
         if not len(np.nonzero(current_string == symbolic_data[lastPointer, :])[0]) == dimensionality: 
